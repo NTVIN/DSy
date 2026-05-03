@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: todo-api
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tododb
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create  # Changed from 'validate' to 'update'
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+jwt:
+  secret: my-super-secret-jwt-key-must-be-at-least-32-characters-long-for-hs512-algorithm
+  expiration: 86400000
+
+logging:
+  level:
+    root: INFO
+    com.todo: DEBUG
