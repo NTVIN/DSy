@@ -8,6 +8,7 @@ import com.todo.repository.UserRepository;
 import com.todo.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+
+    @Value("${jwt.expiration}")
+    private long jwtExpirationMs;
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -41,37 +45,64 @@ public class AuthService {
         user = userRepository.save(user);
         log.info("User registered: {}", user.getEmail());
 
-        String token = jwtProvider.generateTokenFromUsername(user.getUsername());
+        String accessToken = jwtProvider.generateTokenFromUsername(user.getUsername());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getUsername());
 
         return AuthResponse.builder()
-                .token(token)
+                .token(accessToken)
+                .refreshToken(refreshToken)
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .tokenType("Bearer")
+                .expiresIn(jwtExpirationMs / 1000) // Convert to seconds
                 .build();
     }
 
     public AuthResponse login(LoginRequest request) {
-        // 1. Find user by email
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-        // 2. Check password matches
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Failed login attempt for user: {}", request.getEmail());
             throw new RuntimeException("Invalid credentials");
         }
 
-        // 3. Generate JWT token (no authenticationManager needed!)
-        String token = jwtProvider.generateTokenFromUsername(user.getUsername());
+        String accessToken = jwtProvider.generateTokenFromUsername(user.getUsername());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getUsername());
+
         log.info("User logged in: {}", user.getEmail());
 
-        // 4. Return response
         return AuthResponse.builder()
-                .token(token)
+                .token(accessToken)
+                .refreshToken(refreshToken)
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .tokenType("Bearer")
+                .expiresIn(jwtExpirationMs / 1000)
+                .build();
+    }
+
+    public AuthResponse refreshToken(String refreshToken) {
+        if (!jwtProvider.validateToken(refreshToken)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        String username = jwtProvider.getUsernameFromToken(refreshToken);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String newAccessToken = jwtProvider.generateTokenFromUsername(user.getUsername());
+        String newRefreshToken = jwtProvider.generateRefreshToken(user.getUsername());
+
+        log.info("Token refreshed for user: {}", username);
+
+        return AuthResponse.builder()
+                .token(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .tokenType("Bearer")
+                .expiresIn(jwtExpirationMs / 1000)
                 .build();
     }
 }
