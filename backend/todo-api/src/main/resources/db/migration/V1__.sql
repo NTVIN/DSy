@@ -27,3 +27,12 @@ ALTER TABLE users
 
 ALTER TABLE todos
     ADD CONSTRAINT FK_TODOS_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
+
+-- Index on user_id for faster todo queries
+CREATE INDEX IF NOT EXISTS idx_todos_user_id ON todos(user_id);
+
+-- Index on email for faster login queries
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- Index on username for faster JWT validation
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);

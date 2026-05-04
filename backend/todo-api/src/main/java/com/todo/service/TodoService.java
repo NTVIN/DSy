@@ -22,7 +22,7 @@ public class TodoService {
 
     private final TodoRepository todoRepository;
     private final UserRepository userRepository;
-
+    @Transactional(readOnly = true)
     public List<TodoResponse> getAllTodos(String username) {
         User user = getUser(username);
         return todoRepository.findByUserId(user.getId())
@@ -30,7 +30,7 @@ public class TodoService {
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
-
+    @Transactional(readOnly = true)
     public TodoResponse getTodoById(Long id, String username) {
         User user = getUser(username);
         Todo todo = todoRepository.findByIdAndUserId(id, user.getId())

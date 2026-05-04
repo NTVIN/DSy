@@ -9,26 +9,27 @@ import com.todo.service.TokenBlacklistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.Map;
 
-@Value("${INSTANCE_NAME:unknown}")
-private String instanceName;
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
-public class AuthController {
+public class AuthController {  // ← Class starts here
 
+    // Fields go INSIDE the class
     private final AuthService authService;
     private final JwtProvider jwtProvider;
     private final TokenBlacklistService tokenBlacklistService;
+
+    @Value("${INSTANCE_NAME:unknown}")  // ← Add this INSIDE the class
+    private String instanceName;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -45,9 +46,8 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         try {
             AuthResponse response = authService.login(request);
-            log.info("User logged in: {} (handled by: {})", user.getEmail(), instanceName);
+            log.info("User logged in: {} (handled by: {})", request.getEmail(), instanceName);
             return ResponseEntity.ok(response);
-
         } catch (RuntimeException e) {
             log.error("Login failed: {}", e.getMessage());
             throw e;
@@ -80,7 +80,7 @@ public class AuthController {
             // Add to blacklist
             tokenBlacklistService.blacklistToken(tokenId, expiration);
 
-            log.info("User logged out, token blacklisted: {}", tokenId);
+            log.info("User logged out, token blacklisted: {} (handled by: {})", tokenId, instanceName);
 
             return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
         } catch (Exception e) {
