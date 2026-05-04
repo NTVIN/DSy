@@ -32,15 +32,22 @@ public class TokenBlacklistService {
     /**
      * Check if token is blacklisted
      */
-    public boolean isBlacklisted(String tokenId) {
-        // Clean up expired tokens first
-        cleanupExpiredTokens();
+    @Scheduled(fixedRate = 300000) // 5 minutes
+    public void cleanupExpiredTokens() {
+        Date now = new Date();
+        int removed = 0;
 
-        boolean isBlacklisted = blacklistedTokens.containsKey(tokenId);
-        if (isBlacklisted) {
-            log.warn("Attempt to use blacklisted token: {}", tokenId);
+        blacklistedTokens.entrySet().removeIf(entry -> {
+            if (entry.getValue().before(now)) {
+                removed++;
+                return true;
+            }
+            return false;
+        });
+
+        if (removed > 0) {
+            log.debug("Removed {} expired tokens from blacklist", removed);
         }
-        return isBlacklisted;
     }
 
     /**
