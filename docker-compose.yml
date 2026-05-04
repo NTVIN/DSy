@@ -21,16 +21,15 @@ services:
       retries: 5
 
   backend:
-    build: .
+    build: ./backend
     container_name: todo-backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tododb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres123
-      # OWASP: Strong JWT secret (generate your own in production)
       JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D635166546A576E5A7234753778214125442A
-      JWT_EXPIRATION: 900000          # 15 minutes
-      JWT_REFRESH_EXPIRATION: 604800000  # 7 days
+      JWT_EXPIRATION: 900000
+      JWT_REFRESH_EXPIRATION: 604800000
       JWT_ISSUER: todo-api
       JWT_AUDIENCE: todo-api-users
     ports:
@@ -38,6 +37,16 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - todo-network
+
+  frontend:
+    build: ./frontend
+    container_name: todo-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
     networks:
       - todo-network
 

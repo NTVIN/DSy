@@ -1,7 +1,7 @@
 FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
-COPY pom.xml .
-COPY src ./src
+COPY todo-api/pom.xml .
+COPY todo-api/src ./src
 RUN apk add --no-cache maven
 RUN mvn clean package -DskipTests
 
