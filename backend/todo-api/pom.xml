@@ -14,7 +14,7 @@
     <name>todo-api</name>
     <description>todo-api</description>
     <properties>
-        <java.version>17</java.version>
+        <java.version>24</java.version>
     </properties>
     <dependencies>
         <dependency>
