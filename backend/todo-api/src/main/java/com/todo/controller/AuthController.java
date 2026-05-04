@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.Map;
 
+@Value("${INSTANCE_NAME:unknown}")
+private String instanceName;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -42,7 +45,9 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         try {
             AuthResponse response = authService.login(request);
+            log.info("User logged in: {} (handled by: {})", user.getEmail(), instanceName);
             return ResponseEntity.ok(response);
+
         } catch (RuntimeException e) {
             log.error("Login failed: {}", e.getMessage());
             throw e;
