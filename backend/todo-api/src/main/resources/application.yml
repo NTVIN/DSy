@@ -13,20 +13,20 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:postgres123}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 20        # Increase from default (10)
+      maximum-pool-size: 30        # Increase from default (10)
       minimum-idle: 10              # Keep connections ready
       connection-timeout: 30000     # 30 seconds
       idle-timeout: 600000          # 10 minutes
       max-lifetime: 1800000         # 30 minutes
 
   jpa:
-    hibernate:
-      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
 
   flyway:
     enabled: true
