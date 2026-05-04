@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.Map;
 
-@Value("${INSTANCE_NAME:unknown}")
-private String instanceName;
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
