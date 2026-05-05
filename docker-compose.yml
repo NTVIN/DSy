@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:latest  # ← Always pulls latest PostgreSQL
+    image: postgres:17-alpine  # ← Always pulls latest PostgreSQL
     container_name: todo-postgres
     environment:
       POSTGRES_DB: tododb
