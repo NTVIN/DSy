@@ -1,149 +1,162 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { todoAPI, authAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { todoAPI, authAPI } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
 function Todos() {
-    const [todos, setTodos] = useState([]);
-    const [newTitle, setNewTitle] = useState('');
-    const [newDescription, setNewDescription] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+    const [todos, setTodos] = useState([])
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
+
+    const { username, logout } = useAuth()
+    const navigate = useNavigate()
 
     useEffect(() => {
-        fetchTodos();
-    }, []);
+        fetchTodos()
+    }, [])
 
     const fetchTodos = async () => {
         try {
-            const response = await todoAPI.getAll();
-            setTodos(response.data);
+            const response = await todoAPI.getAll()
+            setTodos(response.data)
         } catch (err) {
-            setError('Failed to load todos');
-            if (err.response?.status === 401) {
-                logout();
-                navigate('/login');
-            }
+            setError('Failed to load todos.')
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     const handleCreate = async (e) => {
-        e.preventDefault();
-        if (!newTitle.trim()) return;
+        e.preventDefault()
+        if (!title.trim()) return
 
         try {
-            const response = await todoAPI.create(newTitle, newDescription);
-            setTodos([...todos, response.data]);
-            setNewTitle('');
-            setNewDescription('');
+            const response = await todoAPI.create({ title, description })
+            setTodos([...todos, response.data])
+            setTitle('')
+            setDescription('')
         } catch (err) {
-            setError('Failed to create todo');
+            setError('Failed to create todo.')
         }
-    };
+    }
 
     const handleToggle = async (id) => {
         try {
-            const response = await todoAPI.toggleComplete(id);
+            const response = await todoAPI.toggle(id)
             setTodos(todos.map(todo =>
                 todo.id === id ? response.data : todo
-            ));
+            ))
         } catch (err) {
-            setError('Failed to update todo');
+            setError('Failed to update todo.')
         }
-    };
+    }
 
     const handleDelete = async (id) => {
         try {
-            await todoAPI.delete(id);
-            setTodos(todos.filter(todo => todo.id !== id));
+            await todoAPI.delete(id)
+            setTodos(todos.filter(todo => todo.id !== id))
         } catch (err) {
-            setError('Failed to delete todo');
+            setError('Failed to delete todo.')
         }
-    };
+    }
 
     const handleLogout = async () => {
         try {
-            await authAPI.logout();
+            await authAPI.logout()
         } catch (err) {
-            console.error('Logout error:', err);
+            // Logout anyway even if API call fails
         } finally {
-            logout();
-            navigate('/login');
+            logout()
+            navigate('/login')
         }
-    };
-
-    if (loading) {
-        return <div className="loading">Loading todos...</div>;
     }
 
+    if (loading) return (
+        <div className="todo-container">
+            <p>Loading todos...</p>
+        </div>
+    )
+
     return (
-        <div className="todos-container">
-            <div className="todos-header">
-                <div>
-                    <h2>My Todos</h2>
-                    <p className="user-info">Welcome, {user?.username}!</p>
-                </div>
-                <button onClick={handleLogout} className="logout-btn">
+        <div className="todo-container">
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h2>Hello, {username}! 👋</h2>
+                <button
+                    className="secondary-btn"
+                    onClick={handleLogout}
+                    style={{ width: 'auto', padding: '0.5rem 1rem' }}
+                >
                     Logout
                 </button>
             </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && <p className="error">{error}</p>}
 
-            <form onSubmit={handleCreate} className="todo-form">
-                <div className="form-row">
-                    <input
-                        type="text"
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                        placeholder="Todo title"
-                        className="todo-input"
-                        required
-                    />
-                    <input
-                        type="text"
-                        value={newDescription}
-                        onChange={(e) => setNewDescription(e.target.value)}
-                        placeholder="Description (optional)"
-                        className="todo-input"
-                    />
-                    <button type="submit" className="add-btn">Add Todo</button>
-                </div>
+            {/* Create Todo Form */}
+            <form onSubmit={handleCreate} style={{ marginBottom: '2rem' }}>
+                <input
+                    type="text"
+                    placeholder="Todo title..."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                />
+                <input
+                    type="text"
+                    placeholder="Description (optional)"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                />
+                <button type="submit" className="primary-btn">
+                    + Add Todo
+                </button>
             </form>
 
-            <div className="todos-list">
-                {todos.length === 0 ? (
-                    <p className="empty-message">No todos yet. Create one above!</p>
-                ) : (
-                    todos.map(todo => (
-                        <div key={todo.id} className={`todo-item ${todo.completed ? 'completed' : ''}`}>
-                            <div className="todo-content">
-                                <input
-                                    type="checkbox"
-                                    checked={todo.completed}
-                                    onChange={() => handleToggle(todo.id)}
-                                />
-                                <div className="todo-text">
-                                    <h3>{todo.title}</h3>
-                                    {todo.description && <p>{todo.description}</p>}
-                                </div>
+            {/* Todo List */}
+            {todos.length === 0 ? (
+                <p>No todos yet. Create one above! 🎉</p>
+            ) : (
+                todos.map(todo => (
+                    <div
+                        key={todo.id}
+                        className={`todo-item ${todo.completed ? 'completed' : ''}`}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <input
+                                type="checkbox"
+                                checked={todo.completed}
+                                onChange={() => handleToggle(todo.id)}
+                                style={{ width: 'auto', cursor: 'pointer' }}
+                            />
+                            <div>
+                                <span style={{ fontWeight: '600' }}>{todo.title}</span>
+                                {todo.description && (
+                                    <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                                        {todo.description}
+                                    </p>
+                                )}
                             </div>
-                            <button
-                                onClick={() => handleDelete(todo.id)}
-                                className="delete-btn"
-                            >
-                                Delete
-                            </button>
                         </div>
-                    ))
-                )}
+                        <button
+                            className="danger-btn"
+                            onClick={() => handleDelete(todo.id)}
+                            style={{ width: 'auto', padding: '0.5rem 1rem' }}
+                        >
+                            Delete
+                        </button>
+                    </div>
+                ))
+            )}
+
+            {/* Stats */}
+            <div style={{ marginTop: '2rem', padding: '1rem', background: '#f9fafb', borderRadius: '8px' }}>
+                <p>Total: {todos.length} | Completed: {todos.filter(t => t.completed).length} | Pending: {todos.filter(t => !t.completed).length}</p>
             </div>
         </div>
-    );
+    )
 }
 
-export default Todos;
+export default Todos

@@ -1,4 +1,4 @@
-# Build stage
+# Build stage with Node 24
 FROM node:24-alpine AS build
 
 WORKDIR /app
@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (including devDependencies)
+# Install dependencies
 RUN npm install
 
 # Copy source code
@@ -15,7 +15,7 @@ COPY . .
 # Build the app
 RUN npm run build
 
-# Production stage
+# Production stage with latest nginx
 FROM nginx:alpine
 
 # Copy built files to nginx

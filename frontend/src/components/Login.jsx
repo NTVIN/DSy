@@ -1,80 +1,73 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { authAPI } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { authAPI } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
 function Login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const { login } = useAuth();
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
+
+    const { login } = useAuth()
+    const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
+        e.preventDefault()
+        setError('')
+        setLoading(true)
 
         try {
-            const response = await authAPI.login(email, password);
-            const { token, username, email: userEmail } = response.data;
-
-            login(token, username, userEmail);
-            navigate('/todos');
+            const response = await authAPI.login({ email, password })
+            login(response.data.token, {
+                username: response.data.username,
+                email: response.data.email
+            })
+            navigate('/todos')
         } catch (err) {
-            setError(err.response?.data?.error || 'Login failed. Please try again.');
+            setError(err.response?.data?.message || 'Login failed. Please try again.')
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <h2>Login</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="alice@example.com"
-                            required
-                        />
-                    </div>
+        <div className="auth-card">
+            <h2>Welcome Back 👋</h2>
+            <p>Sign in to your account</p>
 
-                    <div className="form-group">
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter your password"
-                            required
-                        />
-                    </div>
+            {error && <p className="error">{error}</p>}
 
-                    {error && <div className="error-message">{error}</div>}
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+                <button
+                    type="submit"
+                    className="primary-btn"
+                    disabled={loading}
+                >
+                    {loading ? 'Signing in...' : 'Sign In'}
+                </button>
+            </form>
 
-                    <button type="submit" disabled={loading}>
-                        {loading ? 'Logging in...' : 'Login'}
-                    </button>
-                </form>
-
-                <p className="auth-link">
-                    Don't have an account? <Link to="/register">Register</Link>
-                </p>
-
-                <div className="demo-accounts">
-                    <h4>Demo Accounts:</h4>
-                    <p>alice@example.com / Alice123!</p>
-                    <p>bob@example.com / Bob123!</p>
-                </div>
-            </div>
+            <p>
+                Don't have an account?{' '}
+                <a onClick={() => navigate('/register')}>Register</a>
+            </p>
         </div>
-    );
+    )
 }
 
-export default Login;
+export default Login
