@@ -19,6 +19,7 @@ function Register() {
         try {
             const response = await authAPI.register({ username, email, password })
             login(response.data.token, {
+                refreshToken: response.data.refreshToken,
                 username: response.data.username,
                 email: response.data.email
             })

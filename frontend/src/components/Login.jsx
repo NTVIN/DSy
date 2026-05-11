@@ -24,6 +24,7 @@ function Login() {
         try {
             const response = await authAPI.login({ email, password })
             login(response.data.token, {
+                refreshToken: response.data.refreshToken,
                 username: response.data.username,
                 email: response.data.email
             })
