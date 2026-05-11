@@ -10,7 +10,7 @@ A containerized full-stack application featuring JWT authentication, load balanc
 |---|---|
 | **Frontend** | React (Vite) |
 | **Backend** | Spring Boot (Java) |
-| **Database** | PostgreSQL 16 |
+| **Database** | PostgreSQL 17 |
 | **Load Balancer** | Nginx / Traefik |
 | **Containerization** | Docker & Docker Compose |
 | **Authentication** | JWT (OWASP-compliant) |
