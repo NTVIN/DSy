@@ -1,111 +1,68 @@
-# 🚀 Load-Balanced Microservices with JWT Auth
+# TodoApp
 
-A containerized full-stack application featuring JWT authentication, load balancing with failover, and persistent storage.
+## Tech Stack
+
+### Frontend
+| Technology | Version |
+|------------|---------|
+| React | 19 |
+| Vite | 6 |
+| Tailwind CSS | 4 |
+| Axios | 1.9 |
+| React Router | 7 |
+
+### Backend
+| Technology | Version |
+|------------|---------|
+| Java | 24 |
+| Spring Boot | 3.3.5 |
+| Spring Security | 6 |
+| JWT (JJWT) | 0.12.3 |
+| Flyway | 10 |
+| Maven | 3.9 |
+
+### Database
+| Technology | Version |
+|------------|---------|
+| PostgreSQL | 18 |
+
+### Infrastructure
+| Technology | Version |
+|------------|---------|
+| Docker | Latest |
+| Docker Compose | Latest |
+| Nginx | Alpine |
+| Node.js | 24 |
 
 ---
 
-## 🛠️ Tools & Technologies
+## How to Start
 
-| Layer | Technology |
-|---|---|
-| **Frontend** | React (Vite) |
-| **Backend** | Spring Boot (Java) |
-| **Database** | PostgreSQL 17 |
-| **Load Balancer** | Nginx / Traefik |
-| **Containerization** | Docker & Docker Compose |
-| **Authentication** | JWT (OWASP-compliant) |
-| **Load Testing** | `wrk` / `hey` / `ab` |
-
----
-
-## ⚙️ Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/) 
-- [Docker Compose](https://docs.docker.com/compose/) 
-
-No other local dependencies required.
-
----
-
-## 🚀 Getting Started
-
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone https://github.com/NTVIN/DSy.git
+cd DSy
 ```
 
-### 2. Start the entire system
+### 2. Start the Application
 
 ```bash
-docker compose up --build
+docker-compose up --build
 ```
 
-This single command will:
-- Build the React frontend and Spring Boot backend images
-- Start two backend instances (`backend-1`, `backend-2`)
-- Start the Nginx load balancer (round-robin across both instances)
-- Start PostgreSQL with automatic schema migration/seeding
-- Wire everything together on a shared Docker network
-
-### 3. Access the application
+### 3. Access the Application
 
 | Service | URL |
-|---|---|
-| Frontend | http://localhost:3000 |
-| API (via load balancer) | http://localhost:8080/api |
-| Backend instance 1 (direct) | http://localhost:8081 |
-| Backend instance 2 (direct) | http://localhost:8082 |
+|---------|-----|
+| **Frontend** | http://localhost:3000 |
+| **API** | http://localhost:8080/api |
+| **Health Check** | http://localhost:8080/api/health |
 
----
+### 4. Test Accounts
 
-## 🔐 Authentication
-
-- `POST /api/auth/register` — Register a new user
-- `POST /api/auth/login` — Login and receive a JWT
-- All other `/api/**` endpoints require `Authorization: Bearer <token>`
-
-JWT tokens expire after 1 hour. Refresh by re-authenticating.
-
----
-
-## 🧪 Load Testing
-
-With the system running, test a protected endpoint:
-
-```bash
-# Using hey
-hey -n 1000 -c 50 -H "Authorization: Bearer <your_token>" http://localhost:8080/api/todos
-
-# Using wrk
-wrk -t4 -c50 -d30s -H "Authorization: Bearer <your_token>" http://localhost:8080/api/todos
-
-# Using Apache Bench
-ab -n 1000 -c 50 -H "Authorization: Bearer <your_token>" http://localhost:8080/api/todos
-```
-
----
-
-## 🔥 Failover Demo
-
-To demonstrate failover, stop one backend instance while the system is running:
-
-```bash
-docker compose stop backend-1
-```
-
-Traffic is automatically routed to `backend-2`. Restart to restore:
-
-```bash
-docker compose start backend-1
-```
-
----
-
-## 🛑 Stopping the System
-
-```bash
-docker compose down          # Stop containers
-docker compose down -v       # Stop and remove volumes (wipes DB)
-```
+| Email | Password |
+|-------|----------|
+| alice@example.com | Alice123! |
+| bob@example.com | Bob123! |
+| admin@example.com | Admin123! |
