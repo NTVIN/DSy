@@ -18,24 +18,6 @@ A containerized full-stack application featuring JWT authentication, load balanc
 
 ---
 
-## 📁 Project Structure
-
-```
-project/
-├── docker-compose.yml        # Orchestrates all services
-├── .env                      # Environment variables (secrets)
-├── frontend/                 # React app
-│   └── Dockerfile
-├── backend/                  # Spring Boot service (2 instances)
-│   └── Dockerfile
-├── nginx/                    # Load balancer config
-│   └── nginx.conf
-└── db/
-    └── init.sql              # Database seed/migration
-```
-
----
-
 ## ⚙️ Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) 
@@ -54,24 +36,7 @@ git clone https://github.com/your-username/your-repo.git
 cd your-repo
 ```
 
-### 2. Configure secrets
-
-Copy the example env file and fill in your values:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-
-```env
-DB_NAME=authdb
-DB_USER=postgres
-DB_PASSWORD=your_secure_password
-JWT_SECRET=your_jwt_secret_key
-```
-
-### 3. Start the entire system
+### 2. Start the entire system
 
 ```bash
 docker compose up --build
@@ -84,7 +49,7 @@ This single command will:
 - Start PostgreSQL with automatic schema migration/seeding
 - Wire everything together on a shared Docker network
 
-### 4. Access the application
+### 3. Access the application
 
 | Service | URL |
 |---|---|
